@@ -1,4 +1,3 @@
-#include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
 
@@ -11,6 +10,7 @@
 #include <WundergroundClient.h>
 
 #include "fonts.h"
+#include "http-service.h"
 #include "images.h"
 
 // WIFI
@@ -18,8 +18,8 @@
 const char *WIFI_SSID = "Henry's iPhone 6";
 const char *WIFI_PWD = "13913954971";
 
-// Server
-ESP8266WebServer server(80);
+// HTTP Service
+HttpService service;
 
 // Setup
 const int UPDATE_INTERVAL_SECS = 60 * 60; // Update every 60 minutes
@@ -62,7 +62,7 @@ Ticker ticker;
 // Indoor
 int temperature = INT32_MAX;
 // Use MovingAverage to caculate the mean value of the temperature in the last 3
-// minutes.
+// minutes
 const int TEMPERATURE_MA_POINT_COUNT = 3 * 60 / 10;
 MovingAverageFilter temperatureMA(TEMPERATURE_MA_POINT_COUNT);
 
@@ -103,8 +103,8 @@ void setup()
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.setContrast(255);
 
+    
     WiFi.begin(WIFI_SSID, WIFI_PWD);
-    server.begin();
 
     int counter = 0;
     while (WiFi.status() != WL_CONNECTED)
@@ -122,6 +122,12 @@ void setup()
         counter++;
     }
 
+    //WiFi.softAP("SmartTube", "");
+
+    // Start server immediately after WiFi connection established
+    service.begin();
+
+    // Setup UI
     ui.setTargetFPS(30);
     ui.setActiveSymbol(activeSymbole);
     ui.setInactiveSymbol(inactiveSymbole);
@@ -138,6 +144,7 @@ void setup()
 
     updateData(&display);
 
+    // Execute setReadyForWeatherUpdate() every UPDATE_INTERVAL_SECS seconds
     ticker.attach(UPDATE_INTERVAL_SECS, setReadyForWeatherUpdate);
 }
 
@@ -156,9 +163,11 @@ void loop()
 
     if (lastTemperatureUpdate == 0 || millis() - lastTemperatureUpdate > 10 * 1000)
     {
-        // Update temperature every 10 seconds.
+        // Update temperature every 10 seconds
         updateTemperature();
     }
+
+    service.loop();
 }
 
 void drawProgress(OLEDDisplay *display, int percentage, String label)
@@ -208,6 +217,7 @@ void updateTemperature()
     {
         temperature = round(temperatureMA.process(temp));
     }
+    service.setTemperature(temperature);
     lastTemperatureUpdate = millis();
     Serial.println(temperature);
 }
