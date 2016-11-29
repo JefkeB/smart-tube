@@ -103,7 +103,7 @@ void setup()
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.setContrast(255);
 
-    
+
     WiFi.begin(WIFI_SSID, WIFI_PWD);
 
     int counter = 0;
@@ -202,7 +202,7 @@ void updateData(OLEDDisplay *display)
 void updateTemperature()
 {
     int value = analogRead(A0);
-    float temp = (float)value / 1023 * 3.3 * 100;
+    float temp = (float)value / 1023 * 3 * 100;
     Serial.print("Temperature: ");
     Serial.print(temp);
     Serial.print(" / ");

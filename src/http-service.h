@@ -14,6 +14,7 @@ class HttpService
   private:
     ESP8266WebServer server;
     int temperature;
+    void setupFileSystem();
 };
 
 #endif
