@@ -4,7 +4,7 @@
 #include <JsonListener.h>
 #include <MovingAverageFilter.h>
 #include <OLEDDisplayUi.h>
-#include <SSD1306Wire.h>
+#include <SH1106Wire.h>
 #include <Ticker.h>
 #include <TimeClient.h>
 #include <WundergroundClient.h>
@@ -40,7 +40,7 @@ const String WUNDERGROUND_COUNTRY = "CN";
 const String WUNDERGROUND_CITY = "Nanjing";
 
 // Initialize the oled display for address
-SSD1306Wire display(I2C_DISPLAY_ADDRESS, SDA_PIN, SDC_PIN);
+SH1106Wire display(I2C_DISPLAY_ADDRESS, SDA_PIN, SDC_PIN);
 OLEDDisplayUi ui(&display);
 
 /***************************
@@ -81,8 +81,8 @@ void setReadyForWeatherUpdate();
 // Add frames
 // this array keeps function pointers to all frames
 // frames are the single views that slide from right to left
-FrameCallback frames[] = {drawDateTime, drawCurrentWeather, drawForecast, drawIndoor};
-int numberOfFrames = 4;
+FrameCallback frames[] = {drawDateTime, drawCurrentWeather, drawForecast};
+int numberOfFrames = 3;
 
 OverlayCallback overlays[] = {drawHeaderOverlay};
 int numberOfOverlays = 1;
@@ -229,11 +229,11 @@ void drawDateTime(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, in
     display->setFont(ArialMT_Plain_10);
     String date = wunderground.getDate();
     int textWidth = display->getStringWidth(date);
-    display->drawString(64 + x, 5 + y, date);
+    display->drawString(64 + x, 7 + y, date);
     display->setFont(ArialMT_Plain_24);
     String time = timeClient.getFormattedTime();
     textWidth = display->getStringWidth(time);
-    display->drawString(64 + x, 15 + y, time);
+    display->drawString(64 + x, 17 + y, time);
     display->setTextAlignment(TEXT_ALIGN_LEFT);
 }
 
@@ -241,11 +241,11 @@ void drawCurrentWeather(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t
 {
     display->setFont(ArialMT_Plain_10);
     display->setTextAlignment(TEXT_ALIGN_LEFT);
-    display->drawString(60 + x, 5 + y, wunderground.getWeatherText());
+    display->drawString(60 + x, 7 + y, wunderground.getWeatherText());
 
     display->setFont(ArialMT_Plain_24);
     String temp = wunderground.getCurrentTemp() + "°C";
-    display->drawString(60 + x, 15 + y, temp);
+    display->drawString(60 + x, 17 + y, temp);
     int tempWidth = display->getStringWidth(temp);
 
     display->setFont(Meteocons_Plain_42);
@@ -256,9 +256,9 @@ void drawCurrentWeather(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t
 
 void drawForecast(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
 {
-    drawForecastDetails(display, x, y, 0);
-    drawForecastDetails(display, x + 44, y, 2);
-    drawForecastDetails(display, x + 88, y, 4);
+    drawForecastDetails(display, x, y + 8, 0);
+    drawForecastDetails(display, x + 44, y + 8, 2);
+    drawForecastDetails(display, x + 88, y + 8, 4);
 }
 
 void drawIndoor(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
@@ -286,10 +286,10 @@ void drawForecastDetails(OLEDDisplay *display, int x, int y, int dayIndex)
     display->drawString(x + 20, y, day);
 
     display->setFont(Meteocons_Plain_21);
-    display->drawString(x + 20, y + 12, wunderground.getForecastIcon(dayIndex));
+    display->drawString(x + 20, y + 11, wunderground.getForecastIcon(dayIndex));
 
     display->setFont(ArialMT_Plain_10);
-    display->drawString(x + 20, y + 34, wunderground.getForecastLowTemp(dayIndex) + "|" +
+    display->drawString(x + 20, y + 29, wunderground.getForecastLowTemp(dayIndex) + "|" +
                                             wunderground.getForecastHighTemp(dayIndex));
     display->setTextAlignment(TEXT_ALIGN_LEFT);
 }
@@ -302,15 +302,8 @@ void drawHeaderOverlay(OLEDDisplay *display, OLEDDisplayUiState *state)
     display->setTextAlignment(TEXT_ALIGN_LEFT);
     display->drawString(0, 54, time);
     display->setTextAlignment(TEXT_ALIGN_RIGHT);
-    if (temperature != INT32_MAX)
-    {
-        display->drawString(128, 54, String(temperature) + " °C");
-    }
-    else
-    {
-        display->drawString(128, 54, "-- °C");
-    }
-    display->drawHorizontalLine(0, 52, 128);
+    display->drawString(128, 54, wunderground.getCurrentTemp() + "°C");
+    display->drawHorizontalLine(0, 53, 128);
 }
 
 void setReadyForWeatherUpdate()
