@@ -4,7 +4,7 @@
 #include <JsonListener.h>
 #include <MovingAverageFilter.h>
 #include <OLEDDisplayUi.h>
-#include <SSD1306Wire.h>
+#include <SH1106Wire.h>
 #include <Ticker.h>
 #include <TimeClient.h>
 #include <WundergroundClient.h>
@@ -14,8 +14,8 @@
 #include "images.h"
 
 // WIFI
-// const char* WIFI_SSID = "Henry's Living Room 2.4GHz";
-const char *WIFI_SSID = "Henry's iPhone 6";
+// const char* WIFI_SSID = "Henry's iPhone 6";
+const char *WIFI_SSID = "Henry's Living Room 2.4GHz";
 const char *WIFI_PWD = "13913954971";
 
 // HTTP Service
@@ -39,8 +39,8 @@ const String WUNDERGRROUND_LANGUAGE = "EN";
 const String WUNDERGROUND_COUNTRY = "CN";
 const String WUNDERGROUND_CITY = "Nanjing";
 
-// Initialize the oled display for address 0x3c
-SSD1306Wire display(I2C_DISPLAY_ADDRESS, SDA_PIN, SDC_PIN);
+// Initialize the oled display for address
+SH1106Wire display(I2C_DISPLAY_ADDRESS, SDA_PIN, SDC_PIN);
 OLEDDisplayUi ui(&display);
 
 /***************************
@@ -123,6 +123,7 @@ void setup()
     }
 
     //WiFi.softAP("SmartTube", "");
+    Serial.print(WiFi.localIP().toString());
 
     // Start server immediately after WiFi connection established
     service.begin();
