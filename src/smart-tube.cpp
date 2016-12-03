@@ -4,7 +4,7 @@
 #include <JsonListener.h>
 #include <MovingAverageFilter.h>
 #include <OLEDDisplayUi.h>
-#include <SH1106Wire.h>
+#include <SSD1306Wire.h>
 #include <Ticker.h>
 #include <TimeClient.h>
 #include <WundergroundClient.h>
@@ -40,7 +40,7 @@ const String WUNDERGROUND_COUNTRY = "CN";
 const String WUNDERGROUND_CITY = "Nanjing";
 
 // Initialize the oled display for address
-SH1106Wire display(I2C_DISPLAY_ADDRESS, SDA_PIN, SDC_PIN);
+SSD1306Wire display(I2C_DISPLAY_ADDRESS, SDA_PIN, SDC_PIN);
 OLEDDisplayUi ui(&display);
 
 /***************************
